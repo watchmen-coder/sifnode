@@ -6,7 +6,6 @@ import CurrencyPairPanel from "@/components/currencyPairPanel/Index.vue";
 import { useWalletButton } from "@/components/wallet/useWalletButton";
 import SelectTokenDialogSif from "@/components/tokenSelector/SelectTokenDialogSif.vue";
 import Modal from "@/components/shared/Modal.vue";
-import ModalView from "@/components/shared/ModalView.vue";
 import CreatePoolConfirmationDialog from "@/components/confirmationDialog/CreatePoolConfirmationDialog.vue";
 import { ConfirmState } from "@/components/shared/ConfirmationModal.vue";
 import { PoolState, usePoolCalculator } from "ui-core";
@@ -26,7 +25,6 @@ export default defineComponent({
     SelectTokenDialogSif,
     PriceCalculation,
     CreatePoolConfirmationDialog,
-    ModalView,
   },
   props: ["title"],
   setup() {
@@ -46,7 +44,7 @@ export default defineComponent({
     } = useCurrencyFieldState();
 
     const toSymbol = ref("rowan");
-    
+
     fromSymbol.value = route.params.externalAsset
       ? route.params.externalAsset.toString()
       : null;
@@ -109,14 +107,14 @@ export default defineComponent({
         throw new Error("Token B field amount is not defined");
 
       transactionState.value = "signing";
-      
+
       const tx = await actions.clp.addLiquidity(
         tokenBFieldAmount.value,
         tokenAFieldAmount.value
       );
-      
-      transactionHash.value = tx?.hash?? ""
-      transactionState.value = tx?.state?? "" 
+
+      transactionHash.value = tx.hash;
+      transactionState.value = tx.state;
       clearAmounts();
     }
 
@@ -189,9 +187,13 @@ export default defineComponent({
       transactionStateMsg,
 
       transactionModalOpen: computed(() => {
-        return ["confirming", "signing", "failed", "rejected", "confirmed"].includes(
-          transactionState.value
-        );
+        return [
+          "confirming",
+          "signing",
+          "failed",
+          "rejected",
+          "confirmed",
+        ].includes(transactionState.value);
       }),
 
       handleBlur() {
@@ -279,14 +281,13 @@ export default defineComponent({
       :nextStepAllowed="nextStepAllowed"
       :nextStepMessage="nextStepMessage"
     />
-    <CreatePoolConfirmationDialog 
+    <CreatePoolConfirmationDialog
       :requestClose="requestTransactionModalClose"
       :isOpen="transactionModalOpen"
       @confirmed="handleAskConfirmClicked"
       :state="transactionState"
       :transactionHash="transactionHash"
       :transactionStateMsg="transactionStateMsg"
-      
       :fromToken="fromSymbol"
       :fromAmount="fromAmount"
       :poolUnits="poolUnits"
