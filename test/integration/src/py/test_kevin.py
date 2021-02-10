@@ -168,7 +168,7 @@ def request_faucet_coins(
     return result
 
 
-@pytest.mark.skip(reason="only test removal")
+#@pytest.mark.skip(reason="only test removal")
 def test_add_faucet_coins(
         basic_transfer_request: EthereumToSifchainTransferRequest,
         source_ethereum_address: str,
@@ -206,7 +206,7 @@ def test_add_faucet_coins(
     balance = test_utilities.get_sifchain_addr_balance(sifaddress, basic_transfer_request.sifnodecli_node, "rowan")
 
 
-@pytest.mark.skip(reason="not now")
+#@pytest.mark.skip(reason="not now")
 def test_request_faucet_coins(
         basic_transfer_request: EthereumToSifchainTransferRequest,
         source_ethereum_address: str,
@@ -244,6 +244,7 @@ def test_request_faucet_coins(
     balance = test_utilities.get_sifchain_addr_balance(sifaddress, basic_transfer_request.sifnodecli_node, "rowan")
 
 
+@pytest.mark.skip(reason="not now")
 def test_pools(
         basic_transfer_request: EthereumToSifchainTransferRequest,
         source_ethereum_address: str,
