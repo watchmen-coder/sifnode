@@ -84,10 +84,11 @@ func initRelayConfig(provider string, registry common.Address, event types.Event
 	}
 
 	nonce, err := client.PendingNonceAt(context.Background(), sender)
+	fmt.Println("Current eth operator at pending nonce: ", nonce)
+
 	if err != nil {
 		log.Println(err)
 		return nil, nil, common.Address{}, err
-
 	}
 
 	gasPrice, err := client.SuggestGasPrice(context.Background())
@@ -104,6 +105,7 @@ func initRelayConfig(provider string, registry common.Address, event types.Event
 	transactOptsAuth.GasLimit = GasLimit
 	transactOptsAuth.GasPrice = gasPrice
 
+	fmt.Println("Current eth operator nonce: ", transactOptsAuth.Nonce)
 	var targetContract ContractRegistry
 	switch event {
 	// ProphecyClaims are sent to the CosmosBridge contract
