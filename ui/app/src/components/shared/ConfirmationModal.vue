@@ -19,6 +19,10 @@
         :transactionHash="transactionHash"
         :transactionStateMsg="transactionStateMsg"
       >
+        <template v-slot:approving>
+          <slot :name="!!this.$slots.signing ? 'approving' : 'common'"></slot>
+        </template>
+
         <template v-slot:signing>
           <slot :name="!!this.$slots.signing ? 'signing' : 'common'"></slot>
         </template>
@@ -72,6 +76,7 @@ export default defineComponent({
     const isOpen = computed(() => {
       return [
         "confirming",
+        "approving",
         "signing",
         "failed",
         "rejected",

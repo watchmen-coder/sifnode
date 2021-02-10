@@ -33,6 +33,10 @@ export type TxEventSifTxConfirmed = {
   type: "SifTxConfirmed";
 } & TxEventBase<unknown>;
 
+export type TxEventApproved = {
+  type: "Approved";
+} & TxEventBase<unknown>;
+
 export type TxEventComplete = {
   type: "Complete";
 } & TxEventBase<unknown>;
@@ -50,6 +54,7 @@ export type TxEvent =
   | TxEventSifTxConfirmed
   | TxEventHashReceived
   | TxEventError
+  | TxEventApproved
   | TxEventComplete;
 
 export type TxEventPrepopulated<T extends TxEvent = TxEvent> = Omit<
@@ -79,6 +84,7 @@ export type PegTxEventEmitter = {
   onSifTxConfirmed: (
     handler: (e: TxEventSifTxConfirmed) => void
   ) => PegTxEventEmitter;
+  onApproved: (handler: (e: TxEventApproved) => void) => PegTxEventEmitter;
   onComplete: (handler: (e: TxEventComplete) => void) => PegTxEventEmitter;
   onError: (handler: (e: TxEventError) => void) => PegTxEventEmitter;
 };

@@ -53,6 +53,7 @@ export default function createEthbridgeService({
     const res = await tokenContract.methods
       .approve(bridgebankContractAddress, amount.toBaseUnits().toString())
       .send(sendArgs);
+
     console.log("approveBridgeBankSpend:", res);
     return res;
   }
@@ -129,6 +130,11 @@ export default function createEthbridgeService({
         if (coinDenom !== ETH_ADDRESS) {
           await approveBridgeBankSpend(fromAddress, assetAmount);
         }
+        console.log("emitting approved")
+        emitter.emit({
+          type: "Approved",
+          payload: null,
+        });
 
         bridgeBankContract.methods
           .lock(cosmosRecipient, coinDenom, amount)
@@ -230,6 +236,11 @@ export default function createEthbridgeService({
         };
 
         await approveBridgeBankSpend(fromAddress, assetAmount);
+        console.log("emitting approved")
+        emitter.emit({
+          type: "Approved",
+          payload: null,
+        });
 
         bridgeBankContract.methods
           .burn(cosmosRecipient, coinDenom, amount)

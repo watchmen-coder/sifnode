@@ -49,6 +49,10 @@ export function createPegTxEventEmitter(txHash?: string) {
       emitter.on("Complete", handler);
       return instance;
     },
+    onApproved(handler) {
+      emitter.on("Approved", handler);
+      return instance;
+    },
     onError(handler) {
       emitter.on("Error", (e: TxEventError) => {
         handler(e);

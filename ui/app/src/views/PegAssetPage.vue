@@ -74,11 +74,14 @@ export default defineComponent({
     );
 
     async function handlePegRequested() {
-      transactionState.value = "signing";
+      // transactionState.value = "signing";
+      console.log("STARTING PEG REQUESTED")
+      transactionState.value = "approving";
       const tx = await actions.peg.peg(
         AssetAmount(Asset.get(symbol.value), amount.value)
       );
-
+      console.log("WHEN DOES THIS RUN")
+      console.log("what is TX state", tx.state)
       transactionHash.value = tx.hash;
       transactionState.value = toConfirmState(tx.state); // TODO: align states
       transactionStateMsg.value = tx.memo ?? "";

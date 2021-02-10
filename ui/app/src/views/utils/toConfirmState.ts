@@ -9,6 +9,7 @@ import { ConfirmState } from "../../types";
 // TODO: align these states based on TransactionStatus
 export function toConfirmState(tx: TransactionStatus["state"]): ConfirmState {
   return {
+    approved: "approving" as const,
     requested: "signing" as const,
     accepted: "confirmed" as const,
     rejected: "rejected" as const,

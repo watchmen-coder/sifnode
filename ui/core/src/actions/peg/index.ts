@@ -72,22 +72,31 @@ export default ({
     },
 
     async peg(assetAmount: AssetAmount) {
+      console.log("NOW IN PEGGING ACTION");
       const lockOrBurnFn = isOriginallySifchainNativeToken(assetAmount.asset)
         ? api.EthbridgeService.burnToSifchain
         : api.EthbridgeService.lockToSifchain;
 
       return await new Promise<TransactionStatus>(done => {
         lockOrBurnFn(store.wallet.sif.address, assetAmount, ETH_CONFIRMATIONS)
-          .onTxHash(hash =>
+          .onTxHash(hash => {
+            console.log("transcation arproved or accept")
             done({
               hash: hash.txHash,
               memo: "Transaction Accepted",
               state: "accepted",
             })
-          )
+          })
           .onError(err => {
             notify({ type: "error", message: err.payload.memo! });
             done(err.payload);
+          })
+          .onApproved(() => {
+            console.log("was it approved what is going on")
+            notify({
+              type: "approved",
+              message: `Transfer approved.`,
+            });
           })
           .onComplete(({ txHash }) => {
             notify({
