@@ -4,6 +4,7 @@ import { Mnemonic } from "../entities/Wallet";
 import { ActionContext } from ".";
 import { effect } from "@vue/reactivity";
 import notify from "../api/utils/Notifications";
+import {isEqual} from 'lodash'
 
 export default ({
   api,
@@ -65,6 +66,12 @@ export default ({
   });
 
   effect(() => {
+    console.log('SIF Effect: ', 
+    state.balances[1]?.asset, 
+    state.balances[1]?.amount, 
+    store.wallet.sif.balances[1]?.amount, 
+    isEqual(state.balances[1]?.amount, store.wallet.sif.balances[1]?.amount)
+    )
     store.wallet.sif.balances = state.balances;
   });
 

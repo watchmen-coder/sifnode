@@ -110,6 +110,7 @@ export default function createSifService({
       state.address = client.senderAddress;
       state.accounts = await client.getAccounts();
       state.balances = await instance.getBalance(client.senderAddress);
+      console.log('SIF Balances: ', state.balances )
     },
     100,
     { leading: true }

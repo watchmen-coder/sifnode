@@ -2,6 +2,7 @@ import { effect } from "@vue/reactivity";
 import { ActionContext } from "..";
 import { Asset } from "../entities";
 import B from "../entities/utils/B";
+import {isEqual} from 'lodash'
 
 export default ({
   api,
@@ -37,6 +38,12 @@ export default ({
   });
 
   effect(() => {
+    console.log('ETH Effect: ', 
+      etheriumState.balances[4]?.asset, 
+      etheriumState.balances[4]?.amount, 
+      store.wallet.eth.balances[4]?.amount, 
+      isEqual(etheriumState.balances[4]?.amount,store.wallet.eth.balances[4]?.amount))
+
     store.wallet.eth.balances = etheriumState.balances;
   });
 
