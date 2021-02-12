@@ -91,12 +91,17 @@ export default ({
             notify({ type: "error", message: err.payload.memo! });
             done(err.payload);
           })
-          .onApproved(() => {
+          .onApproved((hash) => {
             console.log("was it approved what is going on")
             notify({
               type: "approved",
               message: `Transfer approved.`,
             });
+            done({
+              hash: hash.txHash,
+              memo: "Transaction Approved",
+              state: "approved",
+            })
           })
           .onComplete(({ txHash }) => {
             notify({
