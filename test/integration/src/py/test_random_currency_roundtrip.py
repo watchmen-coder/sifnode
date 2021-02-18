@@ -57,6 +57,10 @@ def do_currency_test(
     burn_lock_functions.transfer_sifchain_to_ethereum(request, credentials)
 
 
+<<<<<<< HEAD
+=======
+#@pytest.mark.skip(reason="investigate failure")
+>>>>>>> 7b00c1ab... wip
 def test_transfer_tokens_with_some_currency(
         basic_transfer_request: EthereumToSifchainTransferRequest,
         source_ethereum_address: str,
