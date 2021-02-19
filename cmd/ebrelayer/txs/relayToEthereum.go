@@ -48,14 +48,16 @@ func RelayProphecyClaimToEthereum(provider string, contractAddress common.Addres
 	fmt.Println("Sending new ProphecyClaim to CosmosBridge...")
 	tx, err := cosmosBridgeInstance.NewProphecyClaim(auth, uint8(claim.ClaimType),
 		claim.CosmosSender, claim.CosmosSenderSequence, claim.EthereumReceiver, claim.Symbol, claim.Amount.BigInt())
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+
 	if nextNonce == 0 {
 		setNextNonce(uint64(auth.Nonce.Int64() + 1))
 	} else {
 		incrementNextNonce()
+	}
+
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 	fmt.Printf("After tx nextNonce is %d\n:", nextNonce)
 	fmt.Println("NewProphecyClaim tx hash:", tx.Hash().Hex())
