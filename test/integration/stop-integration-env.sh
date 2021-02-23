@@ -11,3 +11,4 @@ pkill sifnodecli || true
 pkill sifnoded || true
 pkill ebrelayer || true
 pkill bash || true
+pkill node || true
