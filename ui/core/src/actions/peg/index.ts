@@ -2,23 +2,42 @@ import { ActionContext } from "..";
 import { Address, Asset, AssetAmount, TransactionStatus } from "../../entities";
 import notify from "../../api/utils/Notifications";
 import JSBI from "jsbi";
+import { subscribeToUnconfirmedPegTxs } from "./subscribeToUnconfirmedPegTxs";
+import { createSubscribeToTx } from "./utils/subscribeToTx";
 
 function isOriginallySifchainNativeToken(asset: Asset) {
   return ["erowan", "rowan"].includes(asset.symbol);
 }
+
 // listen for 50 confirmations
 // Eventually this should be set on ebrelayer
 // to centralize the business logic
 const ETH_CONFIRMATIONS = 50;
+
+// TODO: Subscriptions, Commands and Queries should all be their own concepts and each exist within their
+//       own files to manage complexity allow for team to grow and avoid refactoring
+//       subtle complexity of dependency injection to maintain testability is required passing in ctx below
 
 export default ({
   api,
   store,
 }: ActionContext<
   "SifService" | "EthbridgeService" | "EthereumService",
-  "wallet"
+  "wallet" | "tx"
 >) => {
+  // Create the context for passing to commands, queries and subscriptions
+  const ctx = { api, store, ethConfirmations: ETH_CONFIRMATIONS };
+
   const actions = {
+    // TODO: externalize all interactors injecting ctx would look like the following
+    // getSifTokens: getSifTokens(ctx),
+    // getEthTokens: getEthTokens(ctx),
+    // calculateUnpegFee: calculateUnpegFee(ctx),
+    // unpeg: unpeg(ctx),
+    // peg: peg(ctx),
+
+    subscribeToUnconfirmedPegTxs: subscribeToUnconfirmedPegTxs(ctx),
+
     getSifTokens() {
       return api.SifService.getSupportedTokens();
     },
@@ -78,6 +97,7 @@ export default ({
 
       return txStatus;
     },
+
     // TODO: Move this approval command to within peg and report status via store or some other means
     //       This has been done for convenience but we should not have to know in the view that
     //       approval is required before pegging as that is very much business domain knowledge
@@ -87,40 +107,30 @@ export default ({
         assetAmount
       );
     },
+
     async peg(assetAmount: AssetAmount) {
+      const subscribeToTx = createSubscribeToTx(ctx);
+
       const lockOrBurnFn = isOriginallySifchainNativeToken(assetAmount.asset)
         ? api.EthbridgeService.burnToSifchain
         : api.EthbridgeService.lockToSifchain;
-      return await new Promise<TransactionStatus>(done => {
-        lockOrBurnFn(store.wallet.sif.address, assetAmount, ETH_CONFIRMATIONS)
-          .onTxHash(hash => {
-            // TODO: Set tx status on store for pending txs to use elsewhere
-            notify({
-              type: "info",
-              message: "Pegged Transaction Pending",
-              detail: {
-                type: "etherscan",
-                message: hash.txHash,
-              },
-              loader: true,
-            });
 
-            done({
-              hash: hash.txHash,
-              memo: "Transaction Accepted",
-              state: "accepted",
-            });
-          })
-          .onError(err => {
-            notify({ type: "error", message: err.payload.memo! });
-            done(err.payload);
-          })
-          .onComplete(({ txHash }) => {
-            notify({
-              type: "success",
-              message: `Transfer ${txHash} has succeded.`,
-            });
+      return await new Promise<TransactionStatus>(done => {
+        const pegTx = lockOrBurnFn(
+          store.wallet.sif.address,
+          assetAmount,
+          ETH_CONFIRMATIONS
+        );
+
+        subscribeToTx(pegTx);
+
+        pegTx.onTxHash(hash => {
+          done({
+            hash: hash.txHash,
+            memo: "Transaction Accepted",
+            state: "accepted",
           });
+        });
       });
     },
   };
