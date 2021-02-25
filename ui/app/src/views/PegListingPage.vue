@@ -31,9 +31,12 @@
               >Unpeg</SifButton
             >
           </template>
-          <!-- <template #annotation="{ pegTxs }">
-            <h1 v-if="pegTxs.length">{{ pegTxs.length }}</h1>
-          </template> -->
+          <template #annotation="{ pegTxs }">
+            <Tooltip v-if="pegTxs.length > 0">
+              <template #message>{{ pegTxs.length }}</template>
+              <template #default><Icon icon="info-box-black" /></template>
+            </Tooltip>
+          </template>
         </AssetList>
       </Tab>
     </Tabs>
@@ -53,6 +56,8 @@ import AssetList from "@/components/shared/AssetList.vue";
 import SifInput from "@/components/shared/SifInput.vue";
 import ActionsPanel from "@/components/actionsPanel/ActionsPanel.vue";
 import SifButton from "@/components/shared/SifButton.vue";
+import Tooltip from "@/components/shared/Tooltip.vue";
+import Icon from "@/components/shared/Icon.vue";
 
 import { useCore } from "@/hooks/useCore";
 import { defineComponent, ref } from "vue";
@@ -68,6 +73,8 @@ export default defineComponent({
     SifButton,
     SifInput,
     ActionsPanel,
+    Tooltip,
+    Icon,
   },
   setup(_, context) {
     const { store, actions } = useCore();

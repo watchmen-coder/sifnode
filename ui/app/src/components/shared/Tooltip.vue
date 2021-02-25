@@ -8,23 +8,23 @@ export default defineComponent({
     },
   },
 
-  data: function() {
-  	return {
-  		opened: false
+  data: function () {
+    return {
+      opened: false,
     };
   },
   methods: {
     close() {
       console.log("close tool tips");
-      this.opened = false
+      this.opened = false;
       document.body.removeEventListener("mousedown", this.close);
     },
     open() {
       this.opened = true;
       // add click handler to whole page to close tooltip
       document.body.addEventListener("mousedown", this.close);
-    }
-  }
+    },
+  },
 });
 </script>
 
@@ -32,10 +32,12 @@ export default defineComponent({
   <div v-on:click="open()" class="tooltip">
     <div class="tooltip-container" v-if="opened">
       <div class="tooltip-container-inner">
-        {{message}}
+        {{ message }}
+        <slot name="message"></slot>
       </div>
     </div>
-    <slot></slot></div>
+    <slot></slot>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -57,12 +59,12 @@ export default defineComponent({
     width: 210px;
     border-bottom-left-radius: 0;
     &-inner {
-     border-radius: 10px;
-     border-bottom-left-radius: 0;
-     border: 1px solid #DEDEDE;
-     border-bottom-left-radius: 0;
-     padding: 1rem;
-   }
+      border-radius: 10px;
+      border-bottom-left-radius: 0;
+      border: 1px solid #dedede;
+      border-bottom-left-radius: 0;
+      padding: 1rem;
+    }
   }
 }
 </style>

@@ -51,6 +51,8 @@ export default defineComponent({
     flex-grow: 1;
     text-align: right;
     margin-right: 1rem;
+    display: flex;
+    justify-content: flex-end;
   }
 
   & .action {
