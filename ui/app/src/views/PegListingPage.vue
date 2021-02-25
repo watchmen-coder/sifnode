@@ -21,14 +21,19 @@
         </AssetList>
       </Tab>
       <Tab title="Sifchain Native">
-        <AssetList :items="assetList" v-slot="{ asset }">
-          <SifButton
-            :to="`/peg/reverse/${asset.asset.symbol}/${unpeggedSymbol(
-              asset.asset.symbol
-            )}`"
-            primary
-            >Unpeg</SifButton
-          >
+        <AssetList :items="assetList">
+          <template #default="{ asset }">
+            <SifButton
+              :to="`/peg/reverse/${asset.asset.symbol}/${unpeggedSymbol(
+                asset.asset.symbol
+              )}`"
+              primary
+              >Unpeg</SifButton
+            >
+          </template>
+          <!-- <template #annotation="{ pegTxs }">
+            <h1 v-if="pegTxs.length">{{ pegTxs.length }}</h1>
+          </template> -->
         </AssetList>
       </Tab>
     </Tabs>
@@ -51,7 +56,9 @@ import SifButton from "@/components/shared/SifButton.vue";
 
 import { useCore } from "@/hooks/useCore";
 import { defineComponent, ref } from "vue";
-import { computed } from "@vue/reactivity";
+import { computed, effect, toRaw } from "@vue/reactivity";
+import { getUnpeggedSymbol } from "../components/shared/utils";
+
 export default defineComponent({
   components: {
     Tab,
@@ -79,6 +86,18 @@ export default defineComponent({
       return [];
     });
 
+    const pendingPegTxList = computed(() => {
+      if (!store.wallet.eth.address || !store.tx.eth[store.wallet.eth.address])
+        return null;
+
+      const txs = store.tx.eth[store.wallet.eth.address];
+      const txEntries = Object.entries(txs);
+
+      return txEntries
+        .filter(([_, txStatus]) => txStatus.state === "accepted")
+        .map(([_, status]) => toRaw(status)); // Unwrap reactive
+    });
+
     const assetList = computed(() => {
       const balances =
         selectedTab.value === "External Tokens"
@@ -97,18 +116,30 @@ export default defineComponent({
             return asset.symbol.toLowerCase() === symbol.toLowerCase();
           });
 
-          if (!amount) return { amount: 0, asset };
+          // Get pegTxs for asset
+          const pegTxs = pendingPegTxList.value
+            ? pendingPegTxList.value.filter(
+                (pegTx) =>
+                  pegTx.symbol === getUnpeggedSymbol(asset.symbol).toLowerCase()
+              )
+            : [];
+
+          if (!amount) return { amount: 0, asset, pegTxs };
 
           return {
             amount,
             asset,
+            pegTxs,
           };
         });
     });
-
+    effect(() => {
+      console.log({ assetList: assetList.value });
+    });
     return {
       assetList,
       searchText,
+
       peggedSymbol(unpeggedSymbol: string) {
         if (unpeggedSymbol.toLowerCase() === "erowan") {
           return "rowan";
