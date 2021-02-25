@@ -6,7 +6,9 @@ import { TransactionStatus } from "../entities";
 export type TxStore = {
   // txs as required by blockchain address
   eth: {
-    [hash: string]: TransactionStatus;
+    [address: string]: {
+      [hash: string]: TransactionStatus;
+    };
   };
 };
 

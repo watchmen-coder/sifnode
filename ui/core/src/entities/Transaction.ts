@@ -7,6 +7,7 @@ export type TransactionStatus = {
   hash: string;
   state: "requested" | "accepted" | "failed" | "rejected" | "completed"; // Do we need to differentiate between failed and rejected here?
   memo?: string;
+  symbol?: string;
 };
 
 export type TxParams = {

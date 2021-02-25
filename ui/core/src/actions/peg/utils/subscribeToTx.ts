@@ -3,14 +3,19 @@ import notify from "../../../api/utils/Notifications";
 import { TransactionStatus } from "../../../entities";
 import { WithStore } from "../../../store";
 
-export function createSubscribeToTx({ store }: WithStore<"tx">) {
+export function createSubscribeToTx({ store }: WithStore<"tx" | "wallet">) {
   // Helper to set store tx status
+  // Should this live behind a store service API?
   function storeSetTxStatus(
     hash: string | undefined,
     state: TransactionStatus
   ) {
-    if (!hash) return;
-    store.tx.eth[hash] = state;
+    if (!hash || !store.wallet.eth.address) return;
+
+    store.tx.eth[store.wallet.eth.address] =
+      store.tx.eth[store.wallet.eth.address] || {};
+
+    store.tx.eth[store.wallet.eth.address][hash] = state;
   }
 
   /**
@@ -23,11 +28,12 @@ export function createSubscribeToTx({ store }: WithStore<"tx">) {
       tx.removeListeners();
     }
 
-    function handleHash(txHash: string) {
-      storeSetTxStatus(txHash, {
-        hash: txHash,
+    function handleHash(hash: string, symbol?: string) {
+      storeSetTxStatus(hash, {
+        hash,
         memo: "Transaction Accepted",
         state: "accepted",
+        symbol,
       });
 
       notify({
@@ -35,7 +41,7 @@ export function createSubscribeToTx({ store }: WithStore<"tx">) {
         message: "Pegged Transaction Pending",
         detail: {
           type: "etherscan",
-          message: txHash,
+          message: hash,
         },
         loader: true,
       });
@@ -43,12 +49,12 @@ export function createSubscribeToTx({ store }: WithStore<"tx">) {
 
     // HACK: Finding a situation where we need to supply
     //       hash before attaching listeners.
-    //       This might be more elegantly handled if we were using streams?
+    //       This might be more elegantly handled if we were using streams perhaps?
     if (tx.hash) {
-      handleHash(tx.hash);
+      handleHash(tx.hash, tx.symbol);
     } else {
       tx.onTxHash(({ txHash }) => {
-        handleHash(txHash);
+        handleHash(txHash, tx.symbol);
       });
     }
 

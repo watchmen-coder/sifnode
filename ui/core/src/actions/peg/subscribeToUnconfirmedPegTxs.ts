@@ -1,20 +1,18 @@
 import { ActionContext } from "..";
-import { PegTxEventEmitter } from "../../api/EthbridgeService/PegTxEventEmitter";
-import notify from "../../api/utils/Notifications";
 import { createSubscribeToTx } from "./utils/subscribeToTx";
 
 export const subscribeToUnconfirmedPegTxs = ({
   api,
   store,
   ethConfirmations,
-}: ActionContext<"EthbridgeService", "tx"> & {
+}: ActionContext<"EthbridgeService", "tx" | "wallet"> & {
   ethConfirmations: number;
 }) => (address: string) => {
   // Update a tx state in the store
   const subscribeToTx = createSubscribeToTx({ store });
 
   async function getSubscriptions() {
-    const pendingTxs: PegTxEventEmitter[] = await api.EthbridgeService.fetchUnconfirmedLockBurnTxs(
+    const pendingTxs = await api.EthbridgeService.fetchUnconfirmedLockBurnTxs(
       address,
       ethConfirmations
     );
@@ -27,7 +25,6 @@ export const subscribeToUnconfirmedPegTxs = ({
 
   // Return unsubscribe synchronously
   return () => {
-    console.log("unsubscribing...");
     subscriptionsPromise.then(subscriptions =>
       subscriptions.forEach(unsubscribe => unsubscribe())
     );

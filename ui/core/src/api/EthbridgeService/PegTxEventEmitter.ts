@@ -16,15 +16,17 @@ export type PegTxEventEmitter = ReturnType<typeof createPegTxEventEmitter>;
  * Adds types around EventEmitter2
  * @param txHash transaction hash this emitter responds to
  */
-export function createPegTxEventEmitter(txHash?: string) {
+export function createPegTxEventEmitter(txHash?: string, symbol?: string) {
   let _txHash = txHash;
-  let _hasHashHandler = false;
-
+  let _symbol = symbol;
   const emitter = new EventEmitter2();
 
   const instance = {
     get hash() {
       return _txHash;
+    },
+    get symbol() {
+      return _symbol;
     },
     setTxHash(hash: string) {
       _txHash = hash;

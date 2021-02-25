@@ -51,8 +51,14 @@ export default function createEthbridgeService({
    * tx.setTxHash('0x52ds.....'); // set the hash to lookup and confirm on the blockchain
    * @param confirmations number of confirmations before pegtx is considered confirmed
    */
-  function createPegTx(confirmations: number): PegTxEventEmitter {
-    const emitter = createPegTxEventEmitter();
+  function createPegTx(
+    confirmations: number,
+    txHash?: string,
+    symbol?: string
+  ): PegTxEventEmitter {
+    const emitter = createPegTxEventEmitter(txHash, symbol);
+
+    // decorate pegtx to invert dependency to web3 and confirmations
     emitter.onTxHash(async ({ payload: txHash }) => {
       const web3 = await ensureWeb3();
       confirmTx({
@@ -103,7 +109,7 @@ export default function createEthbridgeService({
 
     // unfortunately because _from is not an indexed key we have to manually filter
     // TODO: ask peggy team to index the _from field which would make this more efficient
-    const txs = [];
+    const txs: { symbol: string; hash: string }[] = [];
     for (let event of allEvents) {
       const isEventWeCareAbout = eventList.includes(event.event);
 
@@ -111,7 +117,10 @@ export default function createEthbridgeService({
         event?.returnValues?._from?.toLowerCase() === address.toLowerCase();
 
       if (isEventWeCareAbout && matchesInputAddress && event.transactionHash) {
-        txs.push(event.transactionHash);
+        txs.push({
+          hash: event.transactionHash,
+          symbol: event.returnValues?._symbol,
+        });
       }
     }
     return txs;
@@ -296,11 +305,9 @@ export default function createEthbridgeService({
         confirmations
       );
 
-      return txs.map(txHash => {
-        const pegTx = createPegTx(confirmations);
-        pegTx.setTxHash(txHash);
-        return pegTx;
-      });
+      return txs.map(({ hash, symbol }) =>
+        createPegTx(confirmations, hash, symbol)
+      );
     },
 
     burnToSifchain(

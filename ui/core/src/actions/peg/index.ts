@@ -29,7 +29,7 @@ export default ({
   const ctx = { api, store, ethConfirmations: ETH_CONFIRMATIONS };
 
   const actions = {
-    // TODO: externalize all interactors injecting ctx would look like the following
+    // TODO: suggestion externalize all interactors injecting ctx would look like the following
     // getSifTokens: getSifTokens(ctx),
     // getEthTokens: getEthTokens(ctx),
     // calculateUnpegFee: calculateUnpegFee(ctx),
