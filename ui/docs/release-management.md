@@ -47,13 +47,16 @@ The way ths would work would be like so:
 
 ## What happens when the frontend is run against a newer backend
 
+- poll the node_info
 - Show a full page warning that the interface is not designed to support the backend
-- Refresh every few seconds incase we are mid deployment - pass a query string with the number of refreshes and if there have been X refreshes stop refreshing
+- Assume we are in the middle of a deployment - refresh every few seconds incase we are mid deployment - pass a query string with the number of refreshes and if there have been X refreshes stop refreshing
 
 ## What happens when the frontend is run against an older backend
 
+- poll the node_info
 - Show a full page warning that the interface is not designed to support the backend - "updating..."
 - Refresh every few seconds incase we are mid deployment - pass a query string with the number of refreshes and if there have been X refreshes stop refreshing
+- Can we programmatically determine the location of a frontend version to match the backend deployment?
 
 # Testing
 
