@@ -1,4 +1,6 @@
-# Option 1 - backend API versioning
+# What does a breaking API change look like? 
+
+## Option 1 - Backend API versioning
 
 Normal backend breaking change release for standard web apps
 
@@ -21,7 +23,7 @@ Then if a service has breaking changes you might put it under a new verion but s
 
 ---
 
-# Option 2 - Frontend client versioning - Not recommended
+## Option 2 - Frontend client versioning - Not recommended
 
 There might be issues with supporting multiple API versions
 
