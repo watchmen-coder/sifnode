@@ -31,23 +31,20 @@ variable "tags" {
 }
 
 variable "desired_capacity" {
-  description = "desired kubes nodes pre cluster"
-  default = 1
+  description = "Desired nodes per cluster"
+  default = 2
 }
 
 variable "max_capacity" {
-  description = "Max kubes nodes pre cluster"
-  default = 3
+  description = "Max nodes per cluster"
+  default = 5
 }
 
 variable "min_capacity" {
-  description = "Min capacity of nodes pre kubes cluster"
-  default = 1
+  description = "Min nodes per cluster"
+  default = 2
 }
 
-variable "instance_type" {
-  default = "t2.xlarge"
-}
 
 variable "ami_type" {
   default = "AL2_x86_64"
@@ -101,4 +98,53 @@ variable "efs_pv_capacity" {
 variable "profile" {
   description = "AWS profile settings"
   default = "default"
+}
+
+
+variable "upgrade_instance_type" {
+  description = "The instance_type of the node_group  for the eks cluster"
+  type = string
+  default = "m5.2xlarge"
+}
+# add az variables 
+variable "desired_capacity_a" {
+  description = "Desired nodes per cluster in az a"
+  default = 1
+}
+
+variable "min_capacity_a" {
+  description = "Min nodes per cluster in az a"
+  default = 1
+}
+
+variable "node_group_name_a" {
+  type = string 
+}
+# for az b
+variable "desired_capacity_b" {
+  description = "Desired nodes per cluster in az a"
+  default = 1
+}
+
+variable "min_capacity_b" {
+  description = "Min nodes per cluster in az a"
+  default = 1
+}
+
+variable "node_group_name_b" {
+  type = string 
+}
+# for az c
+variable "desired_capacity_c" {
+  description = "Desired nodes per cluster in az a"
+  default = 1
+}
+
+variable "min_capacity_c" {
+  description = "Min nodes per cluster in az a"
+  default = 1
+}
+
+variable "node_group_name_c" {
+  type = string 
 }

@@ -2,8 +2,12 @@
 import { defineComponent, ref, watch } from "vue";
 import Layout from "@/components/layout/Layout.vue";
 import { useWalletButton } from "@/components/wallet/useWalletButton";
-import { Asset, PoolState, useRemoveLiquidityCalculator } from "ui-core";
-import { LiquidityProvider } from "ui-core";
+import {
+  Asset,
+  LiquidityProvider,
+  PoolState,
+  useRemoveLiquidityCalculator,
+} from "ui-core";
 import { useCore } from "@/hooks/useCore";
 import { useRoute, useRouter } from "vue-router";
 import { computed, effect, Ref, toRef } from "@vue/reactivity";
@@ -41,11 +45,9 @@ export default defineComponent({
     const wBasisPoints = ref("0");
     const nativeAssetSymbol = ref("rowan");
     const externalAssetSymbol = ref<string | null>(
-      route.params.externalAsset ? route.params.externalAsset.toString() : null
+      route.params.externalAsset ? route.params.externalAsset.toString() : null,
     );
-    const { connected, connectedText } = useWalletButton({
-      addrLen: 8,
-    });
+    const { connected } = useWalletButton();
 
     watch(pageState, (newState, prevState) => {
       // When we are moving from success to idle head back to peg
@@ -135,7 +137,7 @@ export default defineComponent({
         const tx = await actions.clp.removeLiquidity(
           Asset.get(externalAssetSymbol.value),
           wBasisPoints.value,
-          asymmetry.value
+          asymmetry.value,
         );
 
         transactionHash.value = tx.hash;
@@ -163,7 +165,6 @@ export default defineComponent({
       nativeAssetSymbol,
       withdrawExternalAssetAmount,
       withdrawNativeAssetAmount,
-      connectedText,
       externalAssetSymbol,
       pageState,
       transactionHash,

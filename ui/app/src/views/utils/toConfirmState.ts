@@ -7,6 +7,7 @@ import { ConfirmState } from "../../types";
 // is not something core knows or cares about and it doesn't quite
 // describe the general nature of a broadcast transaction state
 // TODO: align these states based on TransactionStatus
+// TODO: This really needs to be removed - this should be possible once this is merged https://github.com/Sifchain/sifnode/pull/646/files
 export function toConfirmState(tx: TransactionStatus["state"]): ConfirmState {
   return {
     requested: "signing" as const,
@@ -14,5 +15,6 @@ export function toConfirmState(tx: TransactionStatus["state"]): ConfirmState {
     rejected: "rejected" as const,
     complete: "confirmed" as const,
     failed: "failed" as const,
+    out_of_gas: "out_of_gas" as const,
   }[tx];
 }

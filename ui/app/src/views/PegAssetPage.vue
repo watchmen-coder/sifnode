@@ -86,8 +86,14 @@ export default defineComponent({
 
     const amount = ref("0.0");
     const address = computed(() =>
-      mode.value === "peg" ? store.wallet.sif.address : store.wallet.eth.address
+      mode.value === "peg"
+        ? store.wallet.sif.address
+        : store.wallet.eth.address,
     );
+
+    const isMaxActive = computed(() => {
+      return amount.value === accountBalance.value?.toFixed();
+    });
 
     async function handlePegRequested() {
       pageState.value = "approve";
@@ -119,7 +125,7 @@ export default defineComponent({
       pageState.value = "sign";
 
       const tx = await actions.peg.unpeg(
-        AssetAmount(Asset.get(symbol.value), amount.value)
+        AssetAmount(Asset.get(symbol.value), amount.value),
       );
 
       if (!tx.hash) {
@@ -145,7 +151,7 @@ export default defineComponent({
 
     const nextStepAllowed = computed(() => {
       const amountNum = new BigNumber(amount.value);
-      const balance = accountBalance.value?.toFixed(18) ?? "0.0";
+      const balance = accountBalance.value?.toFixed() ?? "0.0";
       return (
         amountNum.isGreaterThan("0.0") &&
         address.value !== "" &&

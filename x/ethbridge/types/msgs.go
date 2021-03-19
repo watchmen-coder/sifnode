@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	burnGasCost = 65000000000 * 248692 // assuming 65gigawei gas prices
-	lockGasCost = 65000000000 * 282031
+	burnGasCost = 160000000000 * 366000 // assuming 160gigawei gas prices
+	lockGasCost = 160000000000 * 338000
 )
 
 // MsgLock defines a message for locking coins and triggering a related event
@@ -77,7 +77,6 @@ func (msg MsgLock) ValidateBasic() error {
 	if len(msg.Symbol) == 0 {
 		return ErrInvalidSymbol
 	}
-	fmt.Println("Validate basic succeeded for burn tx")
 	return nil
 }
 
