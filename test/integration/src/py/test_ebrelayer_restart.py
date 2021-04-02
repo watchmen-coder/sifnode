@@ -82,32 +82,31 @@ def test_sifchain_transactions_with_offline_relayer(
         basic_transfer_request: EthereumToSifchainTransferRequest,
         rowan_source_integrationtest_env_credentials: test_utilities.SifchaincliCredentials,
         rowan_source_integrationtest_env_transfer_request: EthereumToSifchainTransferRequest,
-        rowan_source,
         smart_contracts_dir,
         source_ethereum_address,
         integration_dir,
 ):
-    basic_transfer_request.ethereum_address = source_ethereum_address
-    request, credentials = generate_test_account(
-        basic_transfer_request,
-        rowan_source_integrationtest_env_transfer_request,
-        rowan_source_integrationtest_env_credentials,
-        target_ceth_balance=10 ** 19,
-        target_rowan_balance=10 ** 19,
-    )
-    logging.info("shut down ebrelayer")
-    test_utilities.get_shell_output(f"pkill -9 ebrelayer || true")
-
-    logging.info("prepare transactions to be sent while ebrelayer is offline")
-    amount = 9000
-
     new_eth_addrs = test_utilities.create_ethereum_addresses(
         smart_contracts_dir,
         basic_transfer_request.ethereum_network,
         2
     )
 
-    request.amount = amount
+    basic_transfer_request.ethereum_address = source_ethereum_address
+    small_amount = 100
+    request, credentials = generate_test_account(
+        basic_transfer_request,
+        rowan_source_integrationtest_env_transfer_request,
+        rowan_source_integrationtest_env_credentials,
+        target_ceth_balance=(test_utilities.burn_gas_cost + small_amount) * len(new_eth_addrs),
+        target_rowan_balance=10 ** 18,
+    )
+    logging.info("shut down ebrelayer")
+    test_utilities.get_shell_output(f"pkill -9 ebrelayer || true")
+
+    logging.info("prepare transactions to be sent while ebrelayer is offline")
+
+    request.amount = small_amount
     request.sifchain_symbol = "ceth"
     request.ethereum_symbol = "eth"
 
@@ -127,4 +126,4 @@ def test_sifchain_transactions_with_offline_relayer(
     test_utilities.advance_n_ethereum_blocks(test_utilities.n_wait_blocks, request.smart_contracts_dir)
     for a in new_eth_addrs:
         request.ethereum_address = a["address"]
-        test_utilities.wait_for_eth_balance(request, amount, 600)
+        test_utilities.wait_for_eth_balance(request, small_amount, 6)
