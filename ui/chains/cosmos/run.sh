@@ -56,7 +56,7 @@ sifnoded validate-genesis
 
 echo "Starting test chain"
 
-parallelizr "sifnoded start" "sifnodecli rest-server  --unsafe-cors --trace"
+parallelizr "sifnoded start --rpc.laddr tcp://0.0.0.0:26657" "sifnodecli rest-server --laddr tcp://0.0.0.0:1317 --unsafe-cors --trace"
 
 
 #sifnoded start --log_level="main:info,state:error,statesync:info,*:error"

@@ -1,1 +1,4 @@
-# run the checkpoint saved from the build command
+#!/bin/bash
+
+docker start --checkpoint launchchain sifui
+

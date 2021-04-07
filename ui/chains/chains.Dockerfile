@@ -46,10 +46,13 @@ RUN make install
 #
 FROM node:14.11.0
 
-EXPOSE 7545
 EXPOSE 1317
+EXPOSE 7545
+EXPOSE 5000
 EXPOSE 26656
 EXPOSE 26657
+
+RUN apt-get update && apt-get -y install curl jq
 
 # Copy the compiled binaires over.
 COPY --from=build-go /go/bin/cosmovisor /usr/bin/cosmovisor
@@ -62,6 +65,7 @@ WORKDIR /sif/ui
 COPY ./ui/package.json ./package.json
 COPY ./ui/core/package.json ./core/package.json
 COPY ./ui/chains ./chains
+COPY ./ui/core/ ./core
 COPY ./smart-contracts ../smart-contracts
 
 RUN mkdir -p ready-server

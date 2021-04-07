@@ -1,0 +1,1 @@
+{"virtualbox":{"/home/vagrant/go/src/github.com/Sifchain/sifnode":{"guestpath":"/home/vagrant/go/src/github.com/Sifchain/sifnode","hostpath":"/Users/rudiyardley/go/src/github.com/Sifchain/sifnode","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/rudiyardley/go/src/github.com/Sifchain/sifnode/ui","disabled":false,"__vagrantfile":true}}}

@@ -1,0 +1,21 @@
+
+$script = <<SCRIPT
+sudo apt-get update && sudo apt-get install -y protobuf-c-compiler libprotobuf-c0-dev protobuf-compiler libprotobuf-dev:amd64 gcc build-essential bsdmainutils python git-core asciidoc make htop git curl supervisor cgroup-lite libapparmor-dev libseccomp-dev libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev libaio-dev apparmor libnet1-dev
+git clone  https://github.com/xemul/criu.git criu
+cd criu
+make clean
+make
+make install
+SCRIPT
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.provision "shell", inline: $script
+
+  # Install Docker
+  config.vm.provision :docker
+
+  # Install Docker Compose
+  config.vm.synced_folder "..", "/home/vagrant/go/src/github.com/Sifchain/sifnode"
+
+end

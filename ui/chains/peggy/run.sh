@@ -31,8 +31,8 @@ echo "-----------------------------------------------------"
 echo "  "
 
 ETHEREUM_PRIVATE_KEY=$ETHEREUM_PRIVATE_KEY ebrelayer init \
-  tcp://localhost:26657 \
-  ws://localhost:7545/ \
+  tcp://0.0.0.0:26657 \
+  ws://0.0.0.0:7545/ \
   "$BRIDGE_REGISTRY_ADDRESS" \
   "$SHADOWFIEND_NAME" \
   "$SHADOWFIEND_MNEMONIC" \
