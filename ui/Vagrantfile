@@ -1,21 +1,24 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/fedora32"
+  # config.ssh.username = 'root'
+  # config.ssh.password = 'vagrant'
+  # config.ssh.insert_key = 'true'
+  config.vm.network "forwarded_port", guest: 1317, host: 1317
+  config.vm.network "forwarded_port", guest: 7545, host: 7545
+  config.vm.network "forwarded_port", guest: 5000, host: 5000
+  config.vm.network "forwarded_port", guest: 26656, host: 26656
+  config.vm.network "forwarded_port", guest: 26657, host: 26657
 
-$script = <<SCRIPT
-sudo apt-get update && sudo apt-get install -y protobuf-c-compiler libprotobuf-c0-dev protobuf-compiler libprotobuf-dev:amd64 gcc build-essential bsdmainutils python git-core asciidoc make htop git curl supervisor cgroup-lite libapparmor-dev libseccomp-dev libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev libaio-dev apparmor libnet1-dev
-git clone  https://github.com/xemul/criu.git criu
-cd criu
-make clean
-make
-make install
-SCRIPT
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 4096
+    v.cpus = 4
+  end
 
-Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.provision "shell", inline: $script
+  config.vm.provision "shell", inline: <<-SHELL
+    dnf update
+    dnf -y install podman criu
+    echo "cd /home/vagrant/go/src/github.com/Sifchain/sifnode" >> /home/vagrant/.bashrc
+  SHELL
 
-  # Install Docker
-  config.vm.provision :docker
-
-  # Install Docker Compose
-  config.vm.synced_folder "..", "/home/vagrant/go/src/github.com/Sifchain/sifnode"
-
+  config.vm.synced_folder "..", "/home/vagrant/go/src/github.com/Sifchain/sifnode", type: "rsync", rsync__exclude: [".vagrant/", ".git/", "**/node_modules/"]
 end

@@ -1,1 +1,1 @@
-{"name":"ubuntu/trusty64","version":"20190514.0.0","provider":"virtualbox","directory":"boxes/ubuntu-VAGRANTSLASH-trusty64/20190514.0.0/virtualbox"}
+{"name":"generic/fedora32","version":"3.2.14","provider":"virtualbox","directory":"boxes/generic-VAGRANTSLASH-fedora32/3.2.14/virtualbox"}

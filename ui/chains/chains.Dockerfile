@@ -55,10 +55,14 @@ EXPOSE 26657
 RUN apt-get update && apt-get -y install curl jq
 
 # Copy the compiled binaires over.
+COPY --from=build-go /go/bin/ebrelayer /usr/bin/ebrelayer
 COPY --from=build-go /go/bin/cosmovisor /usr/bin/cosmovisor
 COPY --from=build-go /go/bin/sifnoded /usr/bin/sifnoded
 COPY --from=build-go /go/bin/sifnodecli /usr/bin/sifnodecli
 COPY --from=build-go /go/bin/sifgen /usr/bin/sifgen
+
+# Required for ebrelayer
+COPY --from=build-go /sif/cmd/ebrelayer /sif/cmd/ebrelayer
 
 WORKDIR /sif/ui
 
