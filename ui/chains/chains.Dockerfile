@@ -72,10 +72,9 @@ COPY ./ui/chains ./chains
 COPY ./ui/core/ ./core
 COPY ./smart-contracts ../smart-contracts
 
-RUN mkdir -p ready-server
-RUN echo "Ready" > ready-server/index.html
+RUN mkdir -p ready-server && echo "Ready" > ready-server/index.html
 RUN yarn install --frozen-lockfile --silent
 RUN cd ./chains/ethereum && yarn install --frozen-lockfile --silent
 RUN cd ../smart-contracts && yarn install --frozen-lockfile --silent
 RUN yarn chain:compile:peggy && yarn chain:eth:build
-CMD yarn concurrently  -r -k -s first "yarn chain:sif" "yarn chain:eth" "yarn wait-on http-get://localhost:1317/node_info && yarn chain:migrate && yarn chain:peggy" "yarn wait-on http-get://localhost:1317/node_info tcp:localhost:7545 node_modules/.migrate-complete && sleep 10 && yarn serve ready-server"
+CMD yarn concurrently  -r -k -s first "yarn chain:sif" "yarn chain:eth" "yarn wait-on http-get://localhost:1317/node_info && yarn chain:migrate && yarn serve ./ready-server"
