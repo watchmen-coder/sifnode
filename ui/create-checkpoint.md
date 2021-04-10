@@ -100,4 +100,4 @@ curl http://localhost:1317/node_info
 # Can you help solve the mystery of why we can't restore the container?
 
 - Is this the wrong approach?
-- Should we just snapshot vagrant? DID AN EXPERIMENT AND YES WE SHOULD JUST USE VAGRANT
+- Should we just snapshot vagrant? DID AN EXPERIMENT AND YES WE SHOULD JUST USE VAGRANT see https://github.com/Sifchain/sifnode/blob/instant-stack/ui/scripts/restore-state.sh
