@@ -1,3 +1,5 @@
+This doc is out of date... yes we should just use vagrant
+
 # Instant Stack Spike
 
 So there is a massive problem with our DX due to how long the blockchains take to startup as we need to commission liquidity pools and whitelist tokens. I went on a spike in an attempt to try and get us a deterministic testing environment as if I was right we could increase productivity by a huge amount as it is really slow working with the backing services and I was thinking this might not be too hard. (I was wrong). Here I want to share what I worked out.
@@ -98,4 +100,4 @@ curl http://localhost:1317/node_info
 # Can you help solve the mystery of why we can't restore the container?
 
 - Is this the wrong approach?
-- Should we just snapshot vagrant?
+- Should we just snapshot vagrant? DID AN EXPERIMENT AND YES WE SHOULD JUST USE VAGRANT
