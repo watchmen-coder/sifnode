@@ -26,6 +26,8 @@ vagrant ssh
 
 I have put this dockerfile together to try and run both chains within a container in order to then restart them with preexisting state. ebrelayer starts quickly so it doesn't need to be included.
 
+Run this from `./ui`
+
 ```
 sudo podman build -t sifnode-ui-stack --file ./chains/chains.Dockerfile ..
 ```
@@ -40,8 +42,13 @@ cid=$(sudo podman run \
   -p 26656:26656 \
   -p 26657:26657 \
   -d \
-  --image-volume=tmpfs \
   sifnode-ui-stack)
+```
+
+Tail the logs if you want
+
+```
+sudo podman logs -f $cid
 ```
 
 This also serves a file with a simple server to show that it is ready (http://localhost:5000)
@@ -68,7 +75,7 @@ I try and save a checkpoint to a file
 sudo podman container checkpoint -e /tmp/stack $cid --tcp-established
 ```
 
-# Retoring the checkpoint doesn't seem to work
+# Restoring the checkpoint doesn't seem to work
 
 Need to delete the container otherwise the restoration fails because it has the same ID... ok
 
@@ -89,3 +96,6 @@ curl http://localhost:1317/node_info
 ```
 
 # Can you help solve the mystery of why we can't restore the container?
+
+- Is this the wrong approach?
+- Should we just snapshot vagrant?
