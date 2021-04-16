@@ -12,11 +12,13 @@ import { useCore } from "@/hooks/useCore";
 import { useRoute } from "vue-router";
 import { format } from "ui-core/src/utils/format";
 import { Amount } from "ui-core";
+import { Copy } from "@/components/shared/Text";
+import Box from "@/components/shared/Box.vue";
 
 const DECIMALS = 5;
 
 export default defineComponent({
-  components: { Layout, SifButton },
+  components: { Layout, SifButton, Copy, Box },
   setup(props) {
     const { config, store } = useCore();
     const route = useRoute().params.externalAsset;
@@ -124,43 +126,17 @@ export default defineComponent({
 
 <template>
   <Layout class="pool" backLink="/pool" title="Your Pair">
-    <div class="sheet" :class="!accountPool ? 'disabled' : 'active'">
-      <div class="section">
-        <div class="header" @click="$emit('poolselected')">
-          <div class="image">
-            <img
-              v-if="fromTokenImage"
-              width="22"
-              height="22"
-              :src="fromTokenImage"
-              class="info-img"
-            />
-            <div class="placeholder" :style="fromBackgroundStyle" v-else></div>
-            <img
-              v-if="toTokenImage"
-              width="22"
-              height="22"
-              :src="toTokenImage"
-              class="info-img"
-            />
-            <div class="placeholder" :style="toBackgroundStyle" v-else></div>
-          </div>
-          <div class="symbol">
-            <span>{{ fromSymbol }}</span>
-            /
-            <span>{{ toSymbol }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="details">
-          <div
-            class="row"
-            :data-handle="'total-pooled-' + fromSymbol.toLowerCase()"
-          >
-            <span>Total Pooled {{ fromSymbol }}:</span>
-            <span class="value">
-              <span>{{ fromTotalValue }}</span>
+    <Copy>
+      Liquidity providers earn a percentage fee on all trades proportional to
+      their share of the pool. Fees are added to the pool, accrue in real time
+      and can be claimed by withdrawing your liquidity.
+      <a href="" target="_blank">Learn more here</a>.
+    </Copy>
+    <Box>
+      <div class="sheet" :class="!accountPool ? 'disabled' : 'active'">
+        <div class="section">
+          <div class="header" @click="$emit('poolselected')">
+            <div class="image">
               <img
                 v-if="fromTokenImage"
                 width="22"
@@ -173,15 +149,6 @@ export default defineComponent({
                 :style="fromBackgroundStyle"
                 v-else
               ></div>
-            </span>
-          </div>
-          <div
-            class="row"
-            :data-handle="'total-pooled-' + toSymbol.toLowerCase()"
-          >
-            <span>Total Pooled {{ toSymbol.toUpperCase() }}:</span>
-            <span class="value">
-              <span>{{ toTotalValue }}</span>
               <img
                 v-if="toTokenImage"
                 width="22"
@@ -190,61 +157,96 @@ export default defineComponent({
                 class="info-img"
               />
               <div class="placeholder" :style="toBackgroundStyle" v-else></div>
-            </span>
-          </div>
-          <div class="row" data-handle="total-pool-share">
-            <span>Your pool share:</span>
-            <span class="value">{{ myPoolShare }}</span>
+            </div>
+            <div class="symbol">
+              <span>{{ fromSymbol }}</span>
+              /
+              <span>{{ toSymbol }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="section">
-        <div class="info">
-          <h3 class="mb-2">Liquidity provider rewards</h3>
-          <p class="text--small mb-2">
-            Liquidity providers earn a percentage fee on all trades proportional
-            to their share of the pool. Fees are added to the pool, accrue in
-            real time and can be claimed by withdrawing your liquidity. To learn
-            more, refer to the documentation
-            <a
-              target="_blank"
-              href="https://docs.sifchain.finance/core-concepts/liquidity-pool"
-              >here</a
-            >.
-          </p>
+        <div class="section">
+          <div class="details">
+            <div
+              class="row"
+              :data-handle="'total-pooled-' + fromSymbol.toLowerCase()"
+            >
+              <span>Total Pooled {{ fromSymbol }}:</span>
+              <span class="value">
+                <span>{{ fromTotalValue }}</span>
+                <img
+                  v-if="fromTokenImage"
+                  width="22"
+                  height="22"
+                  :src="fromTokenImage"
+                  class="info-img"
+                />
+                <div
+                  class="placeholder"
+                  :style="fromBackgroundStyle"
+                  v-else
+                ></div>
+              </span>
+            </div>
+            <div
+              class="row"
+              :data-handle="'total-pooled-' + toSymbol.toLowerCase()"
+            >
+              <span>Total Pooled {{ toSymbol.toUpperCase() }}:</span>
+              <span class="value">
+                <span>{{ toTotalValue }}</span>
+                <img
+                  v-if="toTokenImage"
+                  width="22"
+                  height="22"
+                  :src="toTokenImage"
+                  class="info-img"
+                />
+                <div
+                  class="placeholder"
+                  :style="toBackgroundStyle"
+                  v-else
+                ></div>
+              </span>
+            </div>
+            <div class="row" data-handle="total-pool-share">
+              <span>Your pool share:</span>
+              <span class="value">{{ myPoolShare }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="text--small mt-6 mb-2">
-        <a target="_blank" :href="getBlockExplorerUrl(chainId)"
-          >Blockexplorer</a
-        >
-      </div>
-      <div class="section footer">
-        <div class="mr-1">
-          <router-link
-            :to="`/pool/remove-liquidity/${fromSymbol.toLowerCase()}`"
-            ><SifButton primaryOutline nocase block
-              >Remove Liquidity</SifButton
-            ></router-link
+        <div class="text--small mt-6 mb-2">
+          <a target="_blank" :href="getBlockExplorerUrl(chainId)"
+            >Blockexplorer</a
           >
         </div>
-        <div class="ml-1">
-          <router-link :to="`/pool/add-liquidity/${fromSymbol.toLowerCase()}`"
-            ><SifButton primary nocase block
-              >Add Liquidity</SifButton
-            ></router-link
-          >
+        <div class="section footer">
+          <div class="mr-1">
+            <router-link
+              :to="`/pool/remove-liquidity/${fromSymbol.toLowerCase()}`"
+              ><SifButton primaryOutline nocase block
+                >Remove Liquidity</SifButton
+              ></router-link
+            >
+          </div>
+          <div class="ml-1">
+            <router-link :to="`/pool/add-liquidity/${fromSymbol.toLowerCase()}`"
+              ><SifButton primary nocase block
+                >Add Liquidity</SifButton
+              ></router-link
+            >
+          </div>
         </div>
       </div>
-    </div>
+    </Box>
   </Layout>
 </template>
 
 <style lang="scss" scoped>
 .sheet {
-  background: $c_white;
-  border-radius: $br_sm;
-  border: $divider;
+  // background: $c_white;
+  // border-radius: $br_sm;
+  // border: $divider;
   &.disabled {
     opacity: 0.3;
   }
@@ -253,7 +255,7 @@ export default defineComponent({
   }
 
   .section:not(:last-of-type) {
-    border-bottom: $divider;
+    // border-bottom: $divider;
   }
 
   .header {
