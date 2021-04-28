@@ -229,7 +229,7 @@ def mint_tokens(transfer_request: EthereumToSifchainTransferRequest, operator_ad
 
 def get_sifchain_addr_balance(sifaddress, sifnodecli_node, denom):
     node = f"--node {sifnodecli_node}" if sifnodecli_node else ""
-    command_line = f"{sifnoded_binary} q auth account {node} {sifaddress} -o json"
+    command_line = f"{sifnoded_binary} q auth account {node} {sifaddress} --output json"
     json_str = get_shell_output_json(command_line)
     coins = json_str["value"]["coins"]
     for coin in coins:
@@ -263,7 +263,7 @@ def wait_for_successful_command(command_line, max_seconds=80):
 def get_transaction_result(tx_hash, sifnodecli_node, chain_id):
     node = f"--node {sifnodecli_node}" if sifnodecli_node else ""
     chain_id_entry = f"--chain-id {chain_id}" if chain_id else ""
-    command_line = f"{sifnoded_binary} q tx {node} {tx_hash} {chain_id_entry} -o json"
+    command_line = f"{sifnoded_binary} q tx {node} {tx_hash} {chain_id_entry} --output json"
     json_str = wait_for_successful_command(command_line, max_seconds=30)
     return json_str
 
@@ -345,7 +345,7 @@ def send_from_sifchain_to_sifchain_cmd(
     home_entry = f"--home {credentials.sifnodecli_homedir}" if credentials.sifnodecli_homedir else ""
     cmd = " ".join([
         yes_entry,
-        f"{sifnoded_binary} tx send",
+        f"{sifnoded_binary} tx bank send",
         transfer_request.sifchain_address,
         transfer_request.sifchain_destination_address,
         keyring_backend_entry,
@@ -355,7 +355,7 @@ def send_from_sifchain_to_sifchain_cmd(
         sifchain_fees_entry,
         home_entry,
         "--gas auto",
-        "-y -o json",
+        #"-y --output json",
     ])
     return cmd
 
