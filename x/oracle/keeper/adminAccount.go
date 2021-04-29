@@ -27,6 +27,9 @@ func (k Keeper) GetAdminAccount(ctx sdk.Context) (adminAccount sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.AdminAccountPrefix
 	bz := store.Get(key)
+	if len(bz) == 0 {
+		return nil
+	}
 	acc := gogotypes.BytesValue{}
 	k.cdc.MustUnmarshalBinaryBare(bz, &acc)
 

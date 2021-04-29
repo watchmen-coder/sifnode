@@ -29,7 +29,7 @@ func NewKeeper(
 		panic(types.ErrMinimumConsensusNeededInvalid.Error())
 	}
 	return Keeper{
-		cdc:             cdc,
+		Cdc:             cdc,
 		storeKey:        storeKey,
 		stakeKeeper:     stakeKeeper,
 		consensusNeeded: consensusNeeded,
@@ -50,7 +50,7 @@ func (k Keeper) GetProphecy(ctx sdk.Context, id string) (types.Prophecy, bool) {
 	}
 
 	var dbProphecy types.DBProphecy
-	k.cdc.MustUnmarshalBinaryBare(bz, &dbProphecy)
+	k.Cdc.MustUnmarshalBinaryBare(bz, &dbProphecy)
 
 	deSerializedProphecy, err := dbProphecy.DeserializeFromDB()
 	if err != nil {

@@ -156,6 +156,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONMarshaler, 
 // ExportGenesis returns the exported genesis state as raw bytes for the ethbridge
 // module.
 func (am AppModule) ExportGenesis(s sdk.Context, marshaler codec.JSONMarshaler) json.RawMessage {
+	// TODO work in progress
 	return nil
 }
 
