@@ -227,11 +227,7 @@ def mint_tokens(transfer_request: EthereumToSifchainTransferRequest, operator_ad
 
 def get_sifchain_addr_balance(sifaddress, sifnodecli_node, denom):
     node = f"--node {sifnodecli_node}" if sifnodecli_node else ""
-<<<<<<< HEAD
-    command_line = f"sifnodecli q auth account {node} {sifaddress} -o json"
-=======
     command_line = f"{sifnoded_binary} q auth account {node} {sifaddress} --output json"
->>>>>>> c7169afa... some tweaks
     json_str = get_shell_output_json(command_line)
     coins = json_str["value"]["coins"]
     for coin in coins:
@@ -265,11 +261,7 @@ def wait_for_successful_command(command_line, max_seconds=80):
 def get_transaction_result(tx_hash, sifnodecli_node, chain_id):
     node = f"--node {sifnodecli_node}" if sifnodecli_node else ""
     chain_id_entry = f"--chain-id {chain_id}" if chain_id else ""
-<<<<<<< HEAD
-    command_line = f"sifnodecli q tx {node} {tx_hash} {chain_id_entry} -o json"
-=======
     command_line = f"{sifnoded_binary} q tx {node} {tx_hash} {chain_id_entry} --output json"
->>>>>>> c7169afa... some tweaks
     json_str = wait_for_successful_command(command_line, max_seconds=30)
     return json_str
 
