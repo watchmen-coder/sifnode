@@ -13,6 +13,8 @@ jobs:
        pull-requests: write       
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: '112_more_validators'
 
     - name: Build image
       run: cd test/integration; docker build -t ghcr.io/sifchain/sifnode/$IMAGE_NAME:latest -f Dockerfile.devenv .
