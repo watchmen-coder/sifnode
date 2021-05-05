@@ -1,3 +1,185 @@
+<script lang="ts">
+import Tab from "@/components/shared/Tab.vue";
+import Tabs from "@/components/shared/Tabs.vue";
+import Layout from "@/components/layout/Layout.vue";
+import AssetList from "@/components/shared/AssetList.vue";
+import SifInput from "@/components/shared/SifInput.vue";
+import ActionsPanel from "@/components/actionsPanel/ActionsPanel.vue";
+import SifButton from "@/components/shared/SifButton.vue";
+import Tooltip from "@/components/shared/Tooltip.vue";
+import Icon from "@/components/shared/Icon.vue";
+
+import { sortAssetAmount } from "./utils/sortAssetAmount";
+import { useCore } from "@/hooks/useCore";
+import { defineComponent, ref } from "vue";
+import { computed } from "@vue/reactivity";
+import { getUnpeggedSymbol } from "../components/shared/utils";
+import { AssetAmount, IAsset, TransactionStatus } from "ui-core";
+
+export default defineComponent({
+  components: {
+    Tab,
+    Tabs,
+    AssetList,
+    Layout,
+    SifButton,
+    SifInput,
+    ActionsPanel,
+    Tooltip,
+    Icon,
+  },
+  setup(_, context) {
+    const { store, actions } = useCore();
+    function getIsSupportedNetwork(asset: IAsset): boolean {
+      if (asset.network === "ethereum") {
+        return actions.ethWallet.isSupportedNetwork();
+      }
+
+      if (asset.network === "sifchain") {
+        return true; // TODO: Handle the case of whether the network is supported
+      }
+      return false;
+    }
+    const searchText = ref("");
+    const selectedTab = ref("Sifchain Native");
+
+    const allTokens = computed(() => {
+      if (selectedTab.value === "External Tokens") {
+        return actions.peg.getEthTokens();
+      }
+
+      if (selectedTab.value === "Sifchain Native") {
+        return actions.peg.getSifTokens();
+      }
+      return [];
+    });
+
+    const pendingPegTxList = computed(() => {
+      if (
+        !store.wallet.eth.address ||
+        !store.tx.eth ||
+        !store.tx.eth[store.wallet.eth.address]
+      )
+        return null;
+
+      const txs = store.tx.eth[store.wallet.eth.address];
+
+      const txKeys = Object.keys(txs);
+
+      const list: TransactionStatus[] = [];
+      for (let key of txKeys) {
+        const txStatus = txs[key];
+
+        // Are only interested in pending txs with a symbol
+        if (!txStatus.symbol || txStatus.state !== "accepted") continue;
+
+        list.push(txStatus);
+      }
+
+      return list;
+    });
+
+    const assetList = computed(() => {
+      const balances =
+        selectedTab.value === "External Tokens"
+          ? store.wallet.eth.balances
+          : store.wallet.sif.balances;
+
+      const pegList = pendingPegTxList.value;
+
+      let listedTokens = allTokens.value
+        .filter(
+          ({ symbol }) =>
+            symbol
+              .toLowerCase()
+              .indexOf(searchText.value.toLowerCase().trim()) > -1,
+        )
+        .map((asset) => {
+          const amount = balances.find(({ asset: { symbol } }) => {
+            return asset.symbol.toLowerCase() === symbol.toLowerCase();
+          });
+
+          // Get pegTxs for asset
+          const pegTxs = pegList
+            ? pegList.filter(
+                (txStatus) =>
+                  txStatus.symbol?.toLowerCase() ===
+                  getUnpeggedSymbol(asset.symbol.toLowerCase()),
+              )
+            : [];
+
+          if (!amount) {
+            return {
+              amount: AssetAmount(asset, "0"),
+              asset,
+              pegTxs,
+            };
+          }
+
+          return {
+            amount,
+            asset,
+            pegTxs,
+          };
+        });
+
+      const listedTokensSorted = sortAssetAmount(listedTokens);
+
+      // attach pegTxs
+      const listedTokensPegTxs = listedTokensSorted.map((token) => {
+        // Get pegTxs for asset
+        const pegTxs = pegList
+          ? pegList.filter(
+              (txStatus) =>
+                txStatus.symbol?.toLowerCase() ===
+                getUnpeggedSymbol(token.asset.symbol.toLowerCase()),
+            )
+          : [];
+        // Is the asset from a supported network
+        const supported = getIsSupportedNetwork(token.asset);
+        return {
+          asset: token.asset,
+          amount: token.amount,
+          supported,
+          pegTxs,
+        };
+      });
+      return listedTokensPegTxs;
+    });
+
+    // TODO: add to utils
+    function shortenHash(hash: string) {
+      const start = hash.slice(0, 7);
+      const end = hash.slice(-7);
+      return `${start}...${end}`;
+    }
+
+    return {
+      shortenHash,
+      assetList,
+      searchText,
+      peggedSymbol(unpeggedSymbol: string) {
+        if (unpeggedSymbol.toLowerCase() === "erowan") {
+          return "rowan";
+        }
+        return "c" + unpeggedSymbol;
+      },
+
+      unpeggedSymbol(peggedSymbol: string) {
+        if (peggedSymbol.toLowerCase() === "rowan") {
+          return "erowan";
+        }
+        return peggedSymbol.replace(/^c/, "");
+      },
+
+      onTabSelected({ selectedTitle }: { selectedTitle: string }) {
+        selectedTab.value = selectedTitle;
+      },
+    };
+  },
+});
+</script>
+
 <template>
   <Layout>
     <div class="search-text">
@@ -12,6 +194,7 @@
       <Tab title="External Tokens" slug="external-tab">
         <AssetList :items="assetList" v-slot="{ asset }">
           <SifButton
+            :disabled="!asset.supported"
             :to="`/peg/${asset.asset.symbol}/${peggedSymbol(
               asset.asset.symbol,
             )}`"
@@ -19,6 +202,9 @@
             :data-handle="'peg-' + asset.asset.symbol"
             >Peg</SifButton
           >
+          <Tooltip v-if="!asset.supported" message="Network not supported">
+            &nbsp;<Icon icon="info-box-black" />
+          </Tooltip>
         </AssetList>
       </Tab>
       <Tab title="Sifchain Native" slug="native-tab">
@@ -71,171 +257,3 @@
   color: $c_gold_dark;
 }
 </style>
-<script lang="ts">
-import Tab from "@/components/shared/Tab.vue";
-import Tabs from "@/components/shared/Tabs.vue";
-import Layout from "@/components/layout/Layout.vue";
-import AssetList from "@/components/shared/AssetList.vue";
-import SifInput from "@/components/shared/SifInput.vue";
-import ActionsPanel from "@/components/actionsPanel/ActionsPanel.vue";
-import SifButton from "@/components/shared/SifButton.vue";
-import Tooltip from "@/components/shared/Tooltip.vue";
-
-import { useCore } from "@/hooks/useCore";
-import { defineComponent, ref } from "vue";
-import { computed } from "@vue/reactivity";
-import { getUnpeggedSymbol } from "../components/shared/utils";
-import { AssetAmount, TransactionStatus } from "ui-core";
-
-export default defineComponent({
-  components: {
-    Tab,
-    Tabs,
-    AssetList,
-    Layout,
-    SifButton,
-    SifInput,
-    ActionsPanel,
-    Tooltip,
-  },
-  setup(_, context) {
-    const { store, actions } = useCore();
-
-    const searchText = ref("");
-    const selectedTab = ref("Sifchain Native");
-
-    const allTokens = computed(() => {
-      if (selectedTab.value === "External Tokens") {
-        return actions.peg.getEthTokens();
-      }
-
-      if (selectedTab.value === "Sifchain Native") {
-        return actions.peg.getSifTokens();
-      }
-      return [];
-    });
-
-    const pendingPegTxList = computed(() => {
-      if (
-        !store.wallet.eth.address ||
-        !store.tx.eth ||
-        !store.tx.eth[store.wallet.eth.address]
-      )
-        return null;
-
-      const txs = store.tx.eth[store.wallet.eth.address];
-
-      const txKeys = Object.keys(txs);
-
-      const list: TransactionStatus[] = [];
-      for (let key of txKeys) {
-        const txStatus = txs[key];
-
-        // Are only interested in pending txs with a symbol
-        if (!txStatus.symbol || txStatus.state !== "accepted") continue;
-
-        list.push(txStatus);
-      }
-
-      return list;
-    });
-
-    const assetList = computed(() => {
-      const balances =
-        selectedTab.value === "External Tokens"
-          ? store.wallet.eth.balances
-          : store.wallet.sif.balances;
-
-      const pegList = pendingPegTxList.value;
-
-      return allTokens.value
-        .filter(
-          ({ symbol }) =>
-            symbol
-              .toLowerCase()
-              .indexOf(searchText.value.toLowerCase().trim()) > -1,
-        )
-        .map((asset) => {
-          const amount = balances.find(({ asset: { symbol } }) => {
-            return asset.symbol.toLowerCase() === symbol.toLowerCase();
-          });
-
-          // Get pegTxs for asset
-          const pegTxs = pegList
-            ? pegList.filter(
-                (txStatus) =>
-                  txStatus.symbol?.toLowerCase() ===
-                  getUnpeggedSymbol(asset.symbol.toLowerCase()),
-              )
-            : [];
-
-          if (!amount) {
-            return { amount: AssetAmount(asset, "0"), asset, pegTxs };
-          }
-
-          return {
-            amount,
-            asset,
-            pegTxs,
-          };
-        })
-        .sort((a, b) => {
-          // TODO - This could be more succint
-          // A good refactor candidate when we go to use it in another place
-          // Sort alphabetically
-          if (a.asset.symbol < b.asset.symbol) {
-            return -1;
-          }
-          if (a.asset.symbol > b.asset.symbol) {
-            return 1;
-          }
-          return 0;
-        })
-        .sort((a, b) => {
-          if (b.amount.greaterThan(a.amount)) return 1;
-          if (b.amount.lessThan(a.amount)) return -1;
-          return 0;
-        })
-        .sort((a, b) => {
-          // Finally, sort and move rowan, erowan to the top
-          if (["rowan", "erowan"].includes(a.asset.symbol.toLowerCase())) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-    });
-
-    // TODO: add to utils
-    function shortenHash(hash: string) {
-      const start = hash.slice(0, 7);
-      const end = hash.slice(-7);
-      return `${start}...${end}`;
-    }
-
-    return {
-      shortenHash,
-      assetList,
-      searchText,
-
-      peggedSymbol(unpeggedSymbol: string) {
-        if (unpeggedSymbol.toLowerCase() === "erowan") {
-          return "rowan";
-        }
-        return "c" + unpeggedSymbol;
-      },
-
-      unpeggedSymbol(peggedSymbol: string) {
-        if (peggedSymbol.toLowerCase() === "rowan") {
-          return "erowan";
-        }
-        return peggedSymbol.replace(/^c/, "");
-      },
-
-      onTabSelected({ selectedTitle }: { selectedTitle: string }) {
-        selectedTab.value = selectedTitle;
-      },
-    };
-  },
-});
-</script>

@@ -5,8 +5,10 @@ import {
   AssetAmount,
   IAsset,
   IAssetAmount,
+  Network,
   TransactionStatus,
 } from "../../entities";
+import { isSupportedEVMChain } from "../utils";
 
 import { SubscribeToUnconfirmedPegTxs } from "./subscribeToUnconfirmedPegTxs";
 import { SubscribeToTx } from "./utils/subscribeToTx";
@@ -76,8 +78,8 @@ export default ({
 
     calculateUnpegFee(asset: IAsset) {
       const feeNumber = isOriginallySifchainNativeToken(asset)
-        ? "100080000000000000"
-        : "100080000000000000";
+        ? "70000000000000000"
+        : "70000000000000000";
 
       return AssetAmount(Asset.get("ceth"), feeNumber);
     },
@@ -138,7 +140,23 @@ export default ({
       );
     },
 
-    async peg(assetAmount: IAssetAmount) {
+    async peg(assetAmount: IAssetAmount): Promise<TransactionStatus> {
+      if (
+        assetAmount.asset.network === Network.ETHEREUM &&
+        !isSupportedEVMChain(store.wallet.eth.chainId)
+      ) {
+        api.EventBusService.dispatch({
+          type: "ErrorEvent",
+          payload: {
+            message: "EVM Network not supported!",
+          },
+        });
+        return {
+          hash: "",
+          state: "failed",
+        };
+      }
+
       const subscribeToTx = SubscribeToTx(ctx);
 
       const lockOrBurnFn = isOriginallySifchainNativeToken(assetAmount.asset)
