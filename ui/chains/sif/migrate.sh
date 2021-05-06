@@ -10,7 +10,7 @@ echo "create liquidity pool from catk:rowan"
 
 # nativeAmount 10000000 catk
 # externalAmount 10000000 rowan
-sifnodecli tx clp create-pool \
+sifnoded tx clp create-pool \
  --from akasha \
  --symbol catk \
  --nativeAmount   10000000000000000000000000 \
@@ -24,7 +24,7 @@ echo "create liquidity pool from cbtk:rowan"
 # create liquidity pool from cbtk:rowan
 # nativeAmount 10000000 cbtk
 # externalAmount 10000000 rowan
-sifnodecli tx clp create-pool \
+sifnoded tx clp create-pool \
  --from akasha \
  --symbol cbtk \
  --nativeAmount   10000000000000000000000000 \
@@ -38,7 +38,7 @@ sleep 5
 echo "create liquidity pool from ceth:rowan"
 # nativeAmount 8300 ceth
 # externalAmount 10000000 rowan
-sifnodecli tx clp create-pool \
+sifnoded tx clp create-pool \
  --from akasha \
  --symbol ceth \
  --nativeAmount   10000000000000000000000000 \
@@ -50,7 +50,7 @@ sifnodecli tx clp create-pool \
 sleep 5
 
 echo "create liquidity pool from cusdc:rowan"
-sifnodecli tx clp create-pool \
+sifnoded tx clp create-pool \
  --from akasha \
  --symbol cusdc \
  --nativeAmount   10000000000000000000000000 \
@@ -60,7 +60,7 @@ sifnodecli tx clp create-pool \
 sleep 5
 
 echo "create liquidity pool from clink:rowan"
-sifnodecli tx clp create-pool \
+sifnoded tx clp create-pool \
  --from akasha \
  --symbol clink \
  --nativeAmount   10000000000000000000000000 \

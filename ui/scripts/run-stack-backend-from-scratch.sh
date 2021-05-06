@@ -12,7 +12,7 @@ then
     exit
 fi
 
-killall sifnoded sifnodecli ebrelayer ganache-cli
+killall sifnoded ebrelayer ganache-cli
 sleep 10
 
 yarn concurrently -k -r -s first \
