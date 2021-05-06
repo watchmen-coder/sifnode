@@ -9,7 +9,7 @@ then
     exit
 fi
 
-killall sifnoded sifnodecli ebrelayer ganache-clir
+killall sifnoded sifnodecli ebrelayer ganache-cli
 
 tmux \
   new-session 'yarn stack:backend || echo "process finished" && sleep 1000' \; \
