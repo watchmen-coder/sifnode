@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: integration-testing
+  name: integration-testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+       app: testing
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+         app: testing
+    spec:
+      volumes:
+      - name: claim0
+        persistentVolumeClaim:
+          claimName: claim0
+      - name: claim1
+        persistentVolumeClaim:
+          claimName: claim1
+      - name: claim2
+        persistentVolumeClaim:
+          claimName: claim2
+      - name: claim3
+        persistentVolumeClaim:
+          claimName: claim3
+      - name: claim4
+        persistentVolumeClaim:
+          claimName: claim4
+      - name: var-logs
+        emptyDir: {}
+      initContainers:
+      - name: git-cloner
+        image: alpine/git
+        args:
+            - clone
+            - --branch
+            - 112_more_validators
+            - --
+            - https://github.com/Sifchain/sifnode.git
+            - /sifnode
+        volumeMounts:
+        - mountPath: /sifnode
+          name: claim0
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+      - image: ghcr.io/sifchain/sifnode/sifdocker:latest
+        args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py geth"]
+        name: geth
+        ports:
+          - containerPort: 8646
+          - containerPort: 7990
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: /sifnode
+            name: claim0
+          - mountPath: /configs
+            name: claim1
+          - mountPath: /logs
+            name: claim2
+          - mountPath: /gobin
+            name: claim3
+          - mountPath: /gocache
+            name: claim4
+        workingDir: /sifnode/test/integration
+      - image: ghcr.io/sifchain/sifnode/sifdocker:latest
+        args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py ebrelayer1"]
+        name: ebrelayer1
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: /sifnode
+            name: claim0
+          - mountPath: /configs
+            name: claim1
+          - mountPath: /logs
+            name: claim2
+          - mountPath: /gobin
+            name: claim3
+          - mountPath: /gocache
+            name: claim4
+        workingDir: /sifnode/test/integration
+      - image: ghcr.io/sifchain/sifnode/sifdocker:latest
+        args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py startsifnoded"]
+        name: sifnoded
+        ports:
+          - containerPort: 26657
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: /sifnode
+            name: claim0
+          - mountPath: /configs
+            name: claim1
+          - mountPath: /logs
+            name: claim2
+          - mountPath: /gobin
+            name: claim3
+          - mountPath: /gocache
+            name: claim4
+        workingDir: /sifnode/test/integration
+      - image: ghcr.io/sifchain/sifnode/sifdocker:latest
+        args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py testrunner"]
+        name: testrunner
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        volumeMounts:
+          - mountPath: /sifnode
+            name: claim0
+          - mountPath: /configs
+            name: claim1
+          - mountPath: /logs
+            name: claim2
+          - mountPath: /gobin
+            name: claim3
+          - mountPath: /gocache
+            name: claim4
+        workingDir: /sifnode/test/integration
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+status: {}

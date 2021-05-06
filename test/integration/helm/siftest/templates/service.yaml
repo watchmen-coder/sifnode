@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "siftest.fullname" . }}
+  labels:
+    {{- include "siftest.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- range .Values.ports }}
+    - port: {{ . }}
+      targetPort: {{ . }}
+      name: {{ . | quote }}
+    {{- end }}
+  selector:
+    {{- include "siftest.selectorLabels" . | nindent 4 }}

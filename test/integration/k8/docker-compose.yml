@@ -1,0 +1,91 @@
+networks:
+  sifchaintest:
+    ipam:
+      config:
+      - subnet: 10.0.0.0/24
+      driver: default
+services:
+  ebrelayer1:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py ebrelayer1" '
+    container_name: ebrelayer1
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    networks:
+    - sifchaintest
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+  geth:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py geth" '
+    container_name: geth
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    networks:
+    - sifchaintest
+    ports:
+    - 8646:8646
+    - 7990:7990
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+  sample:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py sample" '
+    container_name: sample
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+  sifnoded:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py startsifnoded" '
+    container_name: sifnoded
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    networks:
+      sifchaintest:
+        ipv4_address: 10.0.0.30
+    ports:
+    - 26657:26657
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+  smartcontractrunner:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py smartcontractrunner" '
+    container_name: smartcontractrunner
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    networks:
+    - sifchaintest
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+  testrunner:
+    command: 'bash -c "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py testrunner" '
+    container_name: testrunner
+    image: ghcr.io/sifchain/sifnode/sifdocker:latest
+    networks:
+    - sifchaintest
+    volumes:
+    - ../..:/sifnode
+    - ./configs:/configs
+    - ./logs:/logs
+    - ./gobin:/gobin
+    - ./gocache:/gocache
+    working_dir: /sifnode/test/integration
+version: '3.9'
+

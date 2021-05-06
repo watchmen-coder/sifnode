@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: claim-mounter
+spec:
+  containers:
+  - name: git-cloner
+    image: alpine/git
+    args:
+           - clone
+           - --branch
+           - 112_more_validators
+           - --
+           - https://github.com/Sifchain/sifnode.git
+           - /sifnode
+    volumeMounts:
+    - mountPath: /sifnode
+      name: claim0
+    workingDir: /sifnode
+  volumes:
+  - name: claim0
+    persistentVolumeClaim:
+      claimName: claim0
+status: {}

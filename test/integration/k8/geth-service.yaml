@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: geth
+  name: geth
+spec:
+  ports:
+    - name: "8646"
+      port: 8646
+      targetPort: 8646
+    - name: "7990"
+      port: 7990
+      targetPort: 7990
+  selector:
+    io.kompose.service: geth
+status:
+  loadBalancer: {}
