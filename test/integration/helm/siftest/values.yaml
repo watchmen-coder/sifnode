@@ -35,10 +35,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 80
-
 ingress:
   enabled: false
   annotations: {}
@@ -56,17 +52,13 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "500Mi"
+    cpu: "500m"
 
 persistence:
   enabled: true
@@ -84,6 +76,10 @@ tolerations: []
 
 affinity: {}
 
+branch: "112_more_validators"
+gitrepo: "https://github.com/Sifchain/sifnode.git"
+mount: "/sifnode"
+
 pvcs:
    claim0: 5Gi
    claim1: 1Gi
@@ -98,28 +94,41 @@ vm:
    claim3: /gobin
    claim4: /gocache
 
-ports:
-  - 26657
-  - 8646
-  - 7990
-  - 80
+service:
+  type: NodePort
+  ports:
+    - 26657
+    - 8646
+    - 7990
+    - 80
 
-deployment:
-  containers:
-  - name: geth
-    image: ghcr.io/sifchain/sifnode/sifdocker:latest
-    args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py geth"]
-    ports:
-    - containerPort: 8646
-    - containerPort: 7990
-  - name: ebrelayer1
-    image: ghcr.io/sifchain/sifnode/sifdocker:latest
-    args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py ebrelayer1"]
-  - name: sifnoded
-    image: ghcr.io/sifchain/sifnode/sifdocker:latest
-    args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py startsifnoded"]
-    ports:
-    - containerPort: 26657
-  - name: testrunner
-    image: ghcr.io/sifchain/sifnode/sifdocker:latest
-    args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py testrunner"]
+containers:
+- name: geth
+  args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py geth"]
+  ports:
+  - containerPort: 8646
+  - containerPort: 7990
+- name: ebrelayer1
+  args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py ebrelayer1"]
+- name: sifnoded
+  args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py startsifnoded"]
+  ports:
+  - containerPort: 26657
+- name: testrunner
+  args: ["bash", "-c", "PATH=${PATH}:/gobin python3 -u src/py/env_framework.py testrunner"]
+
+containercommon:
+  image: ghcr.io/sifchain/sifnode/sifdocker:latest
+  workingDir: /sifnode/test/integration
+
+volumeMounts:
+  - mountPath: /sifnode
+    name: claim0
+  - mountPath: /configs
+    name: claim1
+  - mountPath: /logs
+    name: claim2
+  - mountPath: /gobin
+    name: claim3
+  - mountPath: /gocache
+    name: claim4
